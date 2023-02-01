@@ -18,11 +18,11 @@ type Handler func(r *http.Request) Response
 func (f Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	response := f(r)
 
-	w.WriteHeader(response.Status())
-	w.Write(response.Body())
 	for k, v := range response.Header() {
 		w.Header()[k] = v
 	}
+	w.WriteHeader(response.Status())
+	w.Write(response.Body())
 }
 
 // HandlerFunc creates a standard library compatible handler function
