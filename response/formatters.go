@@ -35,8 +35,11 @@ type XMLFormatter struct{}
 func (f XMLFormatter) FormatBody(responseData ResponseData) []byte {
 
 	if responseData.Content == nil {
-		responseData.Content = map[string]string{
-			"message": http.StatusText(responseData.Status),
+		responseData.Content = struct {
+			XMLName xml.Name `xml:"message"`
+			Message string   `xml:",chardata"`
+		}{
+			Message: http.StatusText(responseData.Status),
 		}
 	}
 
@@ -45,7 +48,7 @@ func (f XMLFormatter) FormatBody(responseData ResponseData) []byte {
 		panic(fmt.Errorf("failed to marshal XML data: %w", err))
 	}
 
-	return xmlBytes
+	return append([]byte(xml.Header), xmlBytes...)
 }
 
 func (f XMLFormatter) FormatHeader(responseData ResponseData) http.Header {
