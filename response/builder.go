@@ -60,10 +60,18 @@ func (r response) WithContent(content interface{}) response {
 	return r
 }
 
-// WithHeader returns a copy of the response with the supplied header. If the
-// header already exists, the values will replace the existing values.
-func (r response) WithHeader(name string, value ...string) response {
-	r.responseData.Header[name] = value
+// WithHeader returns a copy of the response with the supplied header. It will
+// replace the existing header.
+func (r response) WithHeader(header http.Header) response {
+	r.responseData.Header = header
+	return r
+}
+
+// WithHeaderEntry returns a copy of the response with the supplied header entry.
+// If a header entry with the same key already exists, the existing values will
+// be replaced.
+func (r response) WithHeaderEntry(key string, value ...string) response {
+	r.responseData.Header[key] = value
 	return r
 }
 
@@ -77,7 +85,7 @@ func (r response) WithStatus(status int) response {
 // to the response header
 func (r response) WithCookie(cookie *http.Cookie) response {
 	if v := cookie.String(); v != "" {
-		r.WithHeader("Set-Cookie", v)
+		r.WithHeaderEntry("Set-Cookie", v)
 	}
 	return r
 }
@@ -87,8 +95,12 @@ type responseBuilder struct {
 }
 
 // NewResponseBuilder returns a new response builder with the supplied
-// configuration
+// configuration. Will panic if the configuration is missing a formatter.
 func NewResponseBuilder(c Config) *responseBuilder {
+	if c.Formatter == nil {
+		panic("config formatter is nil")
+	}
+
 	return &responseBuilder{
 		Config: c,
 	}
