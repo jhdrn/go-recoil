@@ -35,13 +35,13 @@ func main() {
 		var valid bool
 		if !valid {
 			return response.Content("").WithStatus(http.StatusBadRequest)
-			return response.BadRequest().WithContent("")
+			// return response.BadRequest().WithContent("")
 		}
 
 		var err error
 		if err != nil {
 			return response.InternalServerError().WithContent(err)
-			return response.Content(err)
+			// return response.Content(err).WithStatus(http.StatusInternalServerError)
 		}
 
 		obj := []string{}

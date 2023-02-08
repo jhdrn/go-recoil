@@ -11,6 +11,7 @@ func TestContent(t *testing.T) {
 	r := Content(map[string]interface{}{"key": "value"})
 
 	assert.Equal(t, `{"key":"value"}`, string(r.Body()))
+	assert.Equal(t, http.StatusOK, r.Status())
 }
 
 func TestStatus(t *testing.T) {

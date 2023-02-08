@@ -72,6 +72,30 @@ func TestJSONFormatterFormatHeader(t *testing.T) {
 	assert.Equal(t, 2, len(header))
 }
 
+func TestJSONFormatterFormatStatus(t *testing.T) {
+
+	responseData := ResponseData{
+		Status: http.StatusBadRequest,
+	}
+
+	f := JSONFormatter{}
+
+	status := f.FormatStatus(responseData)
+
+	assert.Equal(t, http.StatusBadRequest, status)
+}
+
+func TestJSONFormatterFormatStatusZeroValue(t *testing.T) {
+
+	responseData := ResponseData{}
+
+	f := JSONFormatter{}
+
+	status := f.FormatStatus(responseData)
+
+	assert.Equal(t, http.StatusOK, status)
+}
+
 func TestXMLFormatterFormatBody(t *testing.T) {
 
 	type xmlTest struct {
@@ -136,4 +160,28 @@ func TestXMLFormatterFormatHeader(t *testing.T) {
 	assert.Equal(t, "application/xml", header.Get("Content-Type"))
 	assert.Equal(t, "value", header.Get("key"))
 	assert.Equal(t, 2, len(header))
+}
+
+func TestXMLFormatterFormatStatus(t *testing.T) {
+
+	responseData := ResponseData{
+		Status: http.StatusBadRequest,
+	}
+
+	f := XMLFormatter{}
+
+	status := f.FormatStatus(responseData)
+
+	assert.Equal(t, http.StatusBadRequest, status)
+}
+
+func TestXMLFormatterFormatStatusZeroValue(t *testing.T) {
+
+	responseData := ResponseData{}
+
+	f := XMLFormatter{}
+
+	status := f.FormatStatus(responseData)
+
+	assert.Equal(t, http.StatusOK, status)
 }

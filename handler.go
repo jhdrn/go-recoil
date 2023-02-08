@@ -1,9 +1,11 @@
+// Package: recoil
 package recoil
 
 import (
 	"net/http"
 )
 
+// Response is an interface that defines the methods used to format a response
 type Response interface {
 	Body() []byte
 	Header() http.Header
