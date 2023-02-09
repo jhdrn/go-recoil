@@ -7,6 +7,25 @@ import (
 	"net/http"
 )
 
+// NoOpFormatter is a ResponseFormatter that does not format the response in any
+// special way.
+type NoOpFormatter struct{}
+
+// FormatBody returns the body of the response data as a string.
+func (f NoOpFormatter) FormatBody(responseData ResponseData) []byte {
+	return []byte(fmt.Sprintf("%v", responseData.Content))
+}
+
+// FormatHeader returns the header of the response data.
+func (f NoOpFormatter) FormatHeader(responseData ResponseData) http.Header {
+	return responseData.Header
+}
+
+// FormatStatus returns the status of the response data.
+func (f NoOpFormatter) FormatStatus(responseData ResponseData) int {
+	return responseData.Status
+}
+
 // JSONFormatter is a ResponseFormatter that formats responses as JSON.
 type JSONFormatter struct{}
 
