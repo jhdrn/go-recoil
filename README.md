@@ -1,5 +1,3 @@
-# Based on Go Repository Template https://github.com/golang-templates/seed
-
 [![GitHub Release](https://img.shields.io/github/v/release/jhdrn/go-recoil)](https://github.com/jhdrn/go-recoil/releases)
 [![Go Reference](https://pkg.go.dev/badge/github.com/jhdrn/go-recoil.svg)](https://pkg.go.dev/github.com/jhdrn/go-recoil)
 [![go.mod](https://img.shields.io/github/go-mod/go-version/jhdrn/go-recoil)](go.mod)
