@@ -1,6 +1,7 @@
 package response
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -14,14 +15,14 @@ var DefaultResponseBuilder = NewResponseBuilder(
 
 // ResponseData contains the data to be used to format a response
 type ResponseData struct {
-	Content interface{}
-	Header  http.Header
-	Status  int
+	Body   interface{}
+	Header http.Header
+	Status int
 }
 
 // Formatter is an interface that defines the methods used to format a response
 type Formatter interface {
-	FormatBody(ResponseData) []byte
+	FormatBody(ResponseData) io.Reader
 	FormatHeader(ResponseData) http.Header
 	FormatStatus(ResponseData) int
 }
@@ -37,7 +38,7 @@ type response struct {
 }
 
 // Body returns the content to be written to the response
-func (r response) Body() []byte {
+func (r response) Body() io.Reader {
 	return r.config.Formatter.FormatBody(r.responseData)
 }
 
@@ -52,22 +53,28 @@ func (r response) Status() int {
 	return r.config.Formatter.FormatStatus(r.responseData)
 }
 
-// WithContent returns a copy of the response with the supplied content.
+// WithContent returns a copy of the response with the given content.
 // If the content argument implements the ResponseError interface,
 // the status will be set to the status of the ResponseError.
 func (r response) WithContent(content interface{}) response {
-	r.responseData.Content = content
+	r.responseData.Body = content
 	return r
 }
 
-// WithHeader returns a copy of the response with the supplied header. It will
+// WithStream returns a copy of the response with the given stream.
+func (r response) WithStream(stream io.Reader) response {
+	r.responseData.Body = stream
+	return r
+}
+
+// WithHeader returns a copy of the response with the given header. It will
 // replace the existing header.
 func (r response) WithHeader(header http.Header) response {
 	r.responseData.Header = header
 	return r
 }
 
-// WithHeaderEntry returns a copy of the response with the supplied header entry.
+// WithHeaderEntry returns a copy of the response with the given header entry.
 // If a header entry with the same key already exists, the existing values will
 // be replaced.
 func (r response) WithHeaderEntry(key string, value ...string) response {
@@ -75,13 +82,13 @@ func (r response) WithHeaderEntry(key string, value ...string) response {
 	return r
 }
 
-// WithStatus returns a copy of the response with the supplied status
+// WithStatus returns a copy of the response with the given status
 func (r response) WithStatus(status int) response {
 	r.responseData.Status = status
 	return r
 }
 
-// WithCookie returns a copy of the response with the supplied cookie set
+// WithCookie returns a copy of the response with the given cookie set
 // to the response header
 func (r response) WithCookie(cookie *http.Cookie) response {
 	if v := cookie.String(); v != "" {
@@ -94,7 +101,7 @@ type responseBuilder struct {
 	Config Config
 }
 
-// NewResponseBuilder returns a new response builder with the supplied
+// NewResponseBuilder returns a new response builder with the given
 // configuration. Will panic if the configuration is missing a formatter.
 func NewResponseBuilder(c Config) *responseBuilder {
 	if c.Formatter == nil {
@@ -106,7 +113,7 @@ func NewResponseBuilder(c Config) *responseBuilder {
 	}
 }
 
-// Content returns a new response with the supplied content.
+// Content returns a new response with the given content.
 // If the content argument implements the ResponseError interface,
 // the status will be set to the status of the ResponseError.
 func (r responseBuilder) Content(content interface{}) response {
@@ -118,7 +125,7 @@ func (r responseBuilder) Content(content interface{}) response {
 	}.WithContent(content)
 }
 
-// Status returns a new response with the supplied status
+// Status returns a new response with the given status
 func (r responseBuilder) Status(status int) response {
 	return response{
 		config: r.Config,
@@ -154,8 +161,9 @@ func (r responseBuilder) Forbidden() response {
 }
 
 // Found returns a new response with the status code 302 Found
-func (r responseBuilder) Found() response {
-	return r.Status(http.StatusFound)
+// Permanently and the given location set as the Location header.
+func (r responseBuilder) Found(location string) response {
+	return r.Status(http.StatusFound).WithHeaderEntry("Location", location)
 }
 
 // GatewayTimeout returns a new response with the status code 504 Gateway Timeout
@@ -173,9 +181,10 @@ func (r responseBuilder) OK() response {
 	return r.Status(http.StatusOK)
 }
 
-// MovedPermanently returns a new response with the status code 301 Moved Permanently
-func (r responseBuilder) MovedPermanently() response {
-	return r.Status(http.StatusMovedPermanently)
+// MovedPermanently returns a new response with the status code 301 Moved
+// Permanently and the given location set as the Location header.
+func (r responseBuilder) MovedPermanently(location string) response {
+	return r.Status(http.StatusMovedPermanently).WithHeaderEntry("Location", location)
 }
 
 // NotFound returns a new response with the status code 404 Not Found
@@ -186,6 +195,18 @@ func (r responseBuilder) NotFound() response {
 // NotImplemented returns a new response with the status code 501 Not Implemented
 func (r responseBuilder) NotImplemented() response {
 	return r.Status(http.StatusNotImplemented)
+}
+
+// PermanentRedirect returns a new response with the status code 308 Permanent Redirect
+// and the given location set as the Location header.
+func (r responseBuilder) PermanentRedirect(location string) response {
+	return r.Status(http.StatusPermanentRedirect).WithHeaderEntry("Location", location)
+}
+
+// TemporaryRedirect returns a new response with the status code 308 Temporary Redirect
+// and the given location set as the Location header.
+func (r responseBuilder) TemporaryRedirect(location string) response {
+	return r.Status(http.StatusTemporaryRedirect).WithHeaderEntry("Location", location)
 }
 
 // Unauthorized returns a new response with the status code 401 Unauthorized

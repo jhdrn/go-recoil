@@ -7,8 +7,34 @@
 [![Codecov](https://codecov.io/gh/jhdrn/go-recoil/branch/main/graph/badge.svg)](https://codecov.io/gh/jhdrn/go-recoil)
 
 ## Description
+`go-recoil` is a small HTTP handler abstraction library. It enables using a `func(r *http.Request) Response` signature for HTTP handlers and comes with helper functions for fluid response building. It is standard library compatible and works very well with for example the [chi router](https://github.com/go-chi/chi).
+
+
 
 ## Usage
+
+
+``` go
+
+import (
+    "net/http"
+
+    "github.com/jhdrn/go-recoil"
+    "github.com/jhdrn/go-recoil/response"
+)
+
+http.HandleFunc("/", recoil.HandlerFunc(func(r *http.Request) recoil.Response {
+    return response.OK()
+}))
+
+http.Handle("/", recoil.Handler(func(r *http.Request) recoil.Response {
+    return response.OK()
+}))
+
+
+```
+
+
 
 ## Contributing
 

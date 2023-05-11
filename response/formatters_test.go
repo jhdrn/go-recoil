@@ -1,7 +1,9 @@
 package response
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"net/http"
 	"testing"
 
@@ -11,36 +13,60 @@ import (
 func TestJSONFormatterFormatBody(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: map[string]interface{}{
+		Body: map[string]interface{}{
 			"key": "value",
 		},
 	}
 
 	f := JSONFormatter{}
 
-	body := f.FormatBody(responseData)
+	bodyReader := f.FormatBody(responseData)
 
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
 	assert.Equal(t, `{"key":"value"}`, string(body))
+}
+
+func TestJSONFormatterFormatStream(t *testing.T) {
+
+	body := []byte("body")
+
+	responseData := ResponseData{
+		Body: bytes.NewReader(body),
+	}
+
+	f := JSONFormatter{}
+
+	bodyReader := f.FormatBody(responseData)
+
+	responseBody, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
+	assert.Equal(t, responseBody, body)
 }
 
 func TestJSONFormatterFormatBodyNilContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: nil,
-		Status:  http.StatusBadRequest,
+		Body:   nil,
+		Status: http.StatusBadRequest,
 	}
 
 	f := JSONFormatter{}
 
-	body := f.FormatBody(responseData)
+	bodyReader := f.FormatBody(responseData)
 
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
 	assert.Equal(t, fmt.Sprintf(`{"message":"%v"}`, http.StatusText(responseData.Status)), string(body))
 }
 
 func TestJSONFormatterFormatBodyBadContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: func() {},
+		Body: func() {},
 	}
 
 	f := JSONFormatter{}
@@ -55,7 +81,7 @@ func TestJSONFormatterFormatBodyBadContent(t *testing.T) {
 func TestJSONFormatterFormatHeader(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: map[string]interface{}{
+		Body: map[string]interface{}{
 			"key": "value",
 		},
 		Header: http.Header{},
@@ -103,36 +129,60 @@ func TestXMLFormatterFormatBody(t *testing.T) {
 	}
 
 	responseData := ResponseData{
-		Content: xmlTest{
+		Body: xmlTest{
 			Key: "value",
 		},
 	}
 
 	f := XMLFormatter{}
 
-	body := f.FormatBody(responseData)
+	bodyReader := f.FormatBody(responseData)
 
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
 	assert.Equal(t, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<xmlTest><key>value</key></xmlTest>", string(body))
+}
+
+func TestXMLFormatterFormatStream(t *testing.T) {
+
+	body := []byte("body")
+
+	responseData := ResponseData{
+		Body: bytes.NewReader(body),
+	}
+
+	f := XMLFormatter{}
+
+	bodyReader := f.FormatBody(responseData)
+
+	responseBody, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
+	assert.Equal(t, responseBody, body)
 }
 
 func TestXMLFormatterFormatBodyNilContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: nil,
-		Status:  http.StatusBadRequest,
+		Body:   nil,
+		Status: http.StatusBadRequest,
 	}
 
 	f := XMLFormatter{}
 
-	body := f.FormatBody(responseData)
+	bodyReader := f.FormatBody(responseData)
 
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
 	assert.Equal(t, fmt.Sprintf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>%v</message>", http.StatusText(responseData.Status)), string(body))
 }
 
 func TestXMLFormatterFormatBodyBadContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: func() {},
+		Body: func() {},
 	}
 
 	f := XMLFormatter{}
@@ -147,8 +197,8 @@ func TestXMLFormatterFormatBodyBadContent(t *testing.T) {
 func TestXMLFormatterFormatHeader(t *testing.T) {
 
 	responseData := ResponseData{
-		Content: nil,
-		Header:  http.Header{},
+		Body:   nil,
+		Header: http.Header{},
 	}
 
 	responseData.Header.Set("key", "value")

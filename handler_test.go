@@ -1,6 +1,7 @@
 package recoil
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -10,12 +11,12 @@ import (
 )
 
 type response struct {
-	body   []byte
+	body   io.Reader
 	header http.Header
 	status int
 }
 
-func (r response) Body() []byte {
+func (r response) Body() io.Reader {
 	return r.body
 }
 func (r response) Header() http.Header {
@@ -27,8 +28,10 @@ func (r response) Status() int {
 
 func TestHandler(t *testing.T) {
 
+	body := []byte("body")
+
 	responseObj := response{
-		body: []byte("body"),
+		body: bytes.NewReader(body),
 		header: http.Header{
 			"Content-Type": []string{"text/plain"},
 		},
@@ -45,15 +48,16 @@ func TestHandler(t *testing.T) {
 
 	respBody, _ := io.ReadAll(rw.Body)
 
-	assert.Equal(t, responseObj.body, respBody)
+	assert.Equal(t, body, respBody)
 	assert.Equal(t, responseObj.header, rw.Result().Header)
 	assert.Equal(t, responseObj.status, rw.Code)
 }
 
 func TestHandlerFunc(t *testing.T) {
 
+	body := []byte("body")
 	responseObj := response{
-		body: []byte("body"),
+		body: bytes.NewReader(body),
 		header: http.Header{
 			"Content-Type": []string{"text/plain"},
 		},
@@ -71,7 +75,7 @@ func TestHandlerFunc(t *testing.T) {
 
 	respBody, _ := io.ReadAll(rw.Body)
 
-	assert.Equal(t, responseObj.body, respBody)
+	assert.Equal(t, body, respBody)
 	assert.Equal(t, responseObj.header, rw.Result().Header)
 	assert.Equal(t, responseObj.status, rw.Code)
 }

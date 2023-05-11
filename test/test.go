@@ -14,6 +14,14 @@ var xmlResponseBuilder = response.NewResponseBuilder(response.Config{
 
 func main() {
 
+	// x := recoil.HandlerFunc(func(r *http.Request) recoil.Response {
+	// 	return response.NotImplemented()
+	// })
+
+	// y := recoil.Handler(func(r *http.Request) recoil.Response {
+	// 	return response.NotImplemented()
+	// })
+
 	response.DefaultResponseBuilder.Config.Formatter = response.JSONFormatter{}
 
 	http.HandleFunc("/", recoil.HandlerFunc(func(r *http.Request) recoil.Response {
@@ -45,6 +53,7 @@ func main() {
 		}
 
 		obj := []string{}
+
 		response.Status(http.StatusOK).WithContent(obj)
 		response.Content(obj).WithStatus(http.StatusOK)
 		return response.Created().WithContent(obj)

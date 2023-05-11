@@ -1,9 +1,11 @@
 package response
 
 import (
+	"bytes"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -12,8 +14,11 @@ import (
 type NoOpFormatter struct{}
 
 // FormatBody returns the body of the response data as a string.
-func (f NoOpFormatter) FormatBody(responseData ResponseData) []byte {
-	return []byte(fmt.Sprintf("%v", responseData.Content))
+func (f NoOpFormatter) FormatBody(responseData ResponseData) io.Reader {
+	if reader, ok := responseData.Body.(io.Reader); ok {
+		return reader
+	}
+	return bytes.NewReader([]byte(fmt.Sprintf("%v", responseData.Body)))
 }
 
 // FormatHeader returns the header of the response data.
@@ -32,20 +37,22 @@ type JSONFormatter struct{}
 // FormatBody formats the response body as JSON. If the response body is nil,
 // it will be set to a map with a single key "message" and the value of
 // http.StatusText(responseData.Status).
-func (f JSONFormatter) FormatBody(responseData ResponseData) []byte {
+func (f JSONFormatter) FormatBody(responseData ResponseData) io.Reader {
 
-	if responseData.Content == nil {
-		responseData.Content = map[string]string{
+	if responseData.Body == nil {
+		responseData.Body = map[string]string{
 			"message": http.StatusText(responseData.Status),
 		}
+	} else if reader, ok := responseData.Body.(io.Reader); ok {
+		return reader
 	}
 
-	jsonBytes, err := json.Marshal(responseData.Content)
+	jsonBytes, err := json.Marshal(responseData.Body)
 	if err != nil {
 		panic(fmt.Errorf("failed to marshal JSON data: %w", err))
 	}
 
-	return jsonBytes
+	return bytes.NewReader(jsonBytes)
 }
 
 // FormatHeader formats the response header by setting the Content-Type to
@@ -70,23 +77,25 @@ type XMLFormatter struct{}
 // FormatBody formats the response body as XML. If the response body is nil,
 // it will be set to a struct with a single field "message" and the value of
 // http.StatusText(responseData.Status).
-func (f XMLFormatter) FormatBody(responseData ResponseData) []byte {
+func (f XMLFormatter) FormatBody(responseData ResponseData) io.Reader {
 
-	if responseData.Content == nil {
-		responseData.Content = struct {
+	if responseData.Body == nil {
+		responseData.Body = struct {
 			XMLName xml.Name `xml:"message"`
 			Message string   `xml:",chardata"`
 		}{
 			Message: http.StatusText(responseData.Status),
 		}
+	} else if reader, ok := responseData.Body.(io.Reader); ok {
+		return reader
 	}
 
-	xmlBytes, err := xml.Marshal(responseData.Content)
+	xmlBytes, err := xml.Marshal(responseData.Body)
 	if err != nil {
 		panic(fmt.Errorf("failed to marshal XML data: %w", err))
 	}
 
-	return append([]byte(xml.Header), xmlBytes...)
+	return bytes.NewReader(append([]byte(xml.Header), xmlBytes...))
 }
 
 // FormatHeader formats the response header by setting the Content-Type to
@@ -104,3 +113,5 @@ func (f XMLFormatter) FormatStatus(responseData ResponseData) int {
 	}
 	return responseData.Status
 }
+
+// TODO: TemplateFormatter ?

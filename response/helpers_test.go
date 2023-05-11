@@ -1,6 +1,7 @@
 package response
 
 import (
+	"io"
 	"net/http"
 	"testing"
 
@@ -10,7 +11,12 @@ import (
 func TestContent(t *testing.T) {
 	r := Content(map[string]interface{}{"key": "value"})
 
-	assert.Equal(t, `{"key":"value"}`, string(r.Body()))
+	bodyReader := r.Body()
+
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
+	assert.Equal(t, `{"key":"value"}`, string(body))
 	assert.Equal(t, http.StatusOK, r.Status())
 }
 
@@ -51,9 +57,10 @@ func TestForbidden(t *testing.T) {
 }
 
 func TestFound(t *testing.T) {
-	r := Found()
+	r := Found("https://example.org")
 
 	assert.Equal(t, http.StatusFound, r.Status())
+	assert.Equal(t, "https://example.org", r.Header().Get("Location"))
 }
 
 func TestGatewayTimeout(t *testing.T) {
@@ -75,9 +82,10 @@ func TestOK(t *testing.T) {
 }
 
 func TestMovedPermanently(t *testing.T) {
-	r := MovedPermanently()
+	r := MovedPermanently("https://example.org")
 
 	assert.Equal(t, http.StatusMovedPermanently, r.Status())
+	assert.Equal(t, "https://example.org", r.Header().Get("Location"))
 }
 
 func TestNotFound(t *testing.T) {
@@ -90,6 +98,20 @@ func TestNotImplemented(t *testing.T) {
 	r := NotImplemented()
 
 	assert.Equal(t, http.StatusNotImplemented, r.Status())
+}
+
+func TestPermanentRedirect(t *testing.T) {
+	r := PermanentRedirect("https://example.org")
+
+	assert.Equal(t, http.StatusPermanentRedirect, r.Status())
+	assert.Equal(t, "https://example.org", r.Header().Get("Location"))
+}
+
+func TestTemporaryRedirect(t *testing.T) {
+	r := TemporaryRedirect("https://example.org")
+
+	assert.Equal(t, http.StatusTemporaryRedirect, r.Status())
+	assert.Equal(t, "https://example.org", r.Header().Get("Location"))
 }
 
 func TestUnauthorized(t *testing.T) {

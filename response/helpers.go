@@ -38,8 +38,8 @@ func Forbidden() response {
 }
 
 // Found returns a 302 Found response using the default response builder.
-func Found() response {
-	return DefaultResponseBuilder.Found()
+func Found(location string) response {
+	return DefaultResponseBuilder.Found(location)
 }
 
 // GatewayTimeout returns a 504 Gateway Timeout response using the default
@@ -54,19 +54,18 @@ func InternalServerError() response {
 	return DefaultResponseBuilder.InternalServerError()
 }
 
-// MethodNotAllowed returns a 405 Method Not Allowed response using the default
-// response builder.
+// OK returns a 200 OK response using the default response builder.
 func OK() response {
 	return DefaultResponseBuilder.OK()
 }
 
 // MovedPermanently returns a 301 Moved Permanently response using the default
 // response builder.
-func MovedPermanently() response {
-	return DefaultResponseBuilder.MovedPermanently()
+func MovedPermanently(location string) response {
+	return DefaultResponseBuilder.MovedPermanently(location)
 }
 
-// NoContent returns a 204 No Content response using the default response builder.
+// NotFound returns a 404 Not Found response using the default response builder.
 func NotFound() response {
 	return DefaultResponseBuilder.NotFound()
 }
@@ -75,6 +74,18 @@ func NotFound() response {
 // response builder.
 func NotImplemented() response {
 	return DefaultResponseBuilder.NotImplemented()
+}
+
+// PermanentRedirect returns a 308 Permanent Redirect response using the default
+// response builder.
+func PermanentRedirect(location string) response {
+	return DefaultResponseBuilder.PermanentRedirect(location)
+}
+
+// TemporaryRedirect returns a 307 Temporary Redirect response using the default
+// response builder.
+func TemporaryRedirect(location string) response {
+	return DefaultResponseBuilder.TemporaryRedirect(location)
 }
 
 // Unauthorized returns a 401 Unauthorized response using the default response
