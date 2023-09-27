@@ -63,6 +63,23 @@ func TestJSONFormatterFormatBodyNilContent(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf(`{"message":"%v"}`, http.StatusText(responseData.Status)), string(body))
 }
 
+func TestJSONFormatterFormatBodyStringContent(t *testing.T) {
+
+	responseData := ResponseData{
+		Body:   "message",
+		Status: http.StatusBadRequest,
+	}
+
+	f := JSONFormatter{}
+
+	bodyReader := f.FormatBody(responseData)
+
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
+	assert.Equal(t, `{"message":"message"}`, string(body))
+}
+
 func TestJSONFormatterFormatBodyBadContent(t *testing.T) {
 
 	responseData := ResponseData{

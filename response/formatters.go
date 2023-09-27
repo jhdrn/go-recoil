@@ -43,6 +43,10 @@ func (f JSONFormatter) FormatBody(responseData ResponseData) io.Reader {
 		responseData.Body = map[string]string{
 			"message": http.StatusText(responseData.Status),
 		}
+	} else if msg, ok := responseData.Body.(string); ok {
+		responseData.Body = map[string]string{
+			"message": msg,
+		}
 	} else if reader, ok := responseData.Body.(io.Reader); ok {
 		return reader
 	}
