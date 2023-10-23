@@ -9,7 +9,7 @@ import (
 )
 
 func TestContent(t *testing.T) {
-	r := Content(map[string]interface{}{"key": "value"})
+	r := Content(map[string]any{"key": "value"})
 
 	bodyReader := r.Body()
 

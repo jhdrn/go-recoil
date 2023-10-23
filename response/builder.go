@@ -15,7 +15,7 @@ var DefaultResponseBuilder = NewResponseBuilder(
 
 // ResponseData contains the data to be used to format a response
 type ResponseData struct {
-	Body   interface{}
+	Body   any
 	Header http.Header
 	Status int
 }
@@ -56,7 +56,7 @@ func (r response) Status() int {
 // WithContent returns a copy of the response with the given content.
 // If the content argument implements the ResponseError interface,
 // the status will be set to the status of the ResponseError.
-func (r response) WithContent(content interface{}) response {
+func (r response) WithContent(content any) response {
 	r.responseData.Body = content
 	return r
 }
@@ -116,7 +116,7 @@ func NewResponseBuilder(c Config) *responseBuilder {
 // Content returns a new response with the given content.
 // If the content argument implements the ResponseError interface,
 // the status will be set to the status of the ResponseError.
-func (r responseBuilder) Content(content interface{}) response {
+func (r responseBuilder) Content(content any) response {
 	return response{
 		config: r.Config,
 		responseData: ResponseData{

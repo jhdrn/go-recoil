@@ -2,7 +2,7 @@ package response
 
 // Content creates a new response with the supplied content using the default
 // response builder.
-func Content(content interface{}) response {
+func Content(content any) response {
 	return DefaultResponseBuilder.Content(content)
 }
 
