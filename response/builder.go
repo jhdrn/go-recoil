@@ -97,18 +97,18 @@ func (r response) WithCookie(cookie *http.Cookie) response {
 	return r
 }
 
-type responseBuilder struct {
+type ResponseBuilder struct {
 	Config Config
 }
 
 // NewResponseBuilder returns a new response builder with the given
 // configuration. Will panic if the configuration is missing a formatter.
-func NewResponseBuilder(c Config) *responseBuilder {
+func NewResponseBuilder(c Config) *ResponseBuilder {
 	if c.Formatter == nil {
 		panic("config formatter is nil")
 	}
 
-	return &responseBuilder{
+	return &ResponseBuilder{
 		Config: c,
 	}
 }
@@ -116,7 +116,7 @@ func NewResponseBuilder(c Config) *responseBuilder {
 // Content returns a new response with the given content.
 // If the content argument implements the ResponseError interface,
 // the status will be set to the status of the ResponseError.
-func (r responseBuilder) Content(content any) response {
+func (r ResponseBuilder) Content(content any) response {
 	return response{
 		config: r.Config,
 		responseData: ResponseData{
@@ -126,7 +126,7 @@ func (r responseBuilder) Content(content any) response {
 }
 
 // Status returns a new response with the given status
-func (r responseBuilder) Status(status int) response {
+func (r ResponseBuilder) Status(status int) response {
 	return response{
 		config: r.Config,
 		responseData: ResponseData{
@@ -136,80 +136,80 @@ func (r responseBuilder) Status(status int) response {
 }
 
 // BadGateway returns a new response with the status code 502 Bad Gateway
-func (r responseBuilder) BadGateway() response {
+func (r ResponseBuilder) BadGateway() response {
 	return r.Status(http.StatusBadGateway)
 }
 
 // BadRequest returns a new response with the status code 400 Bad Request
-func (r responseBuilder) BadRequest() response {
+func (r ResponseBuilder) BadRequest() response {
 	return r.Status(http.StatusBadRequest)
 }
 
 // Conflict returns a new response with the status code 409 Conflict
-func (r responseBuilder) Conflict() response {
+func (r ResponseBuilder) Conflict() response {
 	return r.Status(http.StatusConflict)
 }
 
 // Created returns a new response with the status code 201 Created
-func (r responseBuilder) Created() response {
+func (r ResponseBuilder) Created() response {
 	return r.Status(http.StatusCreated)
 }
 
 // Forbidden returns a new response with the status code 403 Forbidden
-func (r responseBuilder) Forbidden() response {
+func (r ResponseBuilder) Forbidden() response {
 	return r.Status(http.StatusForbidden)
 }
 
 // Found returns a new response with the status code 302 Found
 // Permanently and the given location set as the Location header.
-func (r responseBuilder) Found(location string) response {
+func (r ResponseBuilder) Found(location string) response {
 	return r.Status(http.StatusFound).WithHeaderEntry("Location", location)
 }
 
 // GatewayTimeout returns a new response with the status code 504 Gateway Timeout
-func (r responseBuilder) GatewayTimeout() response {
+func (r ResponseBuilder) GatewayTimeout() response {
 	return r.Status(http.StatusGatewayTimeout)
 }
 
 // Gone returns a new response with the status code 410 Gone
-func (r responseBuilder) InternalServerError() response {
+func (r ResponseBuilder) InternalServerError() response {
 	return r.Status(http.StatusInternalServerError)
 }
 
 // OK returns a new response with the status code 200 OK
-func (r responseBuilder) OK() response {
+func (r ResponseBuilder) OK() response {
 	return r.Status(http.StatusOK)
 }
 
 // MovedPermanently returns a new response with the status code 301 Moved
 // Permanently and the given location set as the Location header.
-func (r responseBuilder) MovedPermanently(location string) response {
+func (r ResponseBuilder) MovedPermanently(location string) response {
 	return r.Status(http.StatusMovedPermanently).WithHeaderEntry("Location", location)
 }
 
 // NotFound returns a new response with the status code 404 Not Found
-func (r responseBuilder) NotFound() response {
+func (r ResponseBuilder) NotFound() response {
 	return r.Status(http.StatusNotFound)
 }
 
 // NotImplemented returns a new response with the status code 501 Not Implemented
-func (r responseBuilder) NotImplemented() response {
+func (r ResponseBuilder) NotImplemented() response {
 	return r.Status(http.StatusNotImplemented)
 }
 
 // PermanentRedirect returns a new response with the status code 308 Permanent Redirect
 // and the given location set as the Location header.
-func (r responseBuilder) PermanentRedirect(location string) response {
+func (r ResponseBuilder) PermanentRedirect(location string) response {
 	return r.Status(http.StatusPermanentRedirect).WithHeaderEntry("Location", location)
 }
 
 // TemporaryRedirect returns a new response with the status code 308 Temporary Redirect
 // and the given location set as the Location header.
-func (r responseBuilder) TemporaryRedirect(location string) response {
+func (r ResponseBuilder) TemporaryRedirect(location string) response {
 	return r.Status(http.StatusTemporaryRedirect).WithHeaderEntry("Location", location)
 }
 
 // Unauthorized returns a new response with the status code 401 Unauthorized
-func (r responseBuilder) Unauthorized() response {
+func (r ResponseBuilder) Unauthorized() response {
 	return r.Status(http.StatusUnauthorized)
 }
