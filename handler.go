@@ -20,6 +20,9 @@ type Handler func(r *http.Request) Response
 
 // ServeHTTP calls Handler(r) and writes the Response to w. Will panic if
 // writing the response fails.
+//
+// If the response body implements the io.Closer interface, it will be closed
+// after it has been written to the response writer.
 func (f Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	response := f(r)
 
@@ -28,9 +31,18 @@ func (f Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(response.Status())
 
-	_, err := io.Copy(w, response.Body())
+	body := response.Body()
+
+	_, err := io.Copy(w, body)
 	if err != nil {
 		panic(fmt.Errorf("failed to write response: %w", err))
+	}
+
+	if closer, ok := body.(io.Closer); ok {
+		err := closer.Close()
+		if err != nil {
+			panic(fmt.Errorf("failed to close body: %w", err))
+		}
 	}
 }
 
