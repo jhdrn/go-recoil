@@ -40,6 +40,35 @@ func TestHTMLTemplateFormatterFormatBody(t *testing.T) {
 	assert.Equal(t, "<doctype html><html><head><title>Test</title></head><body>value</body></html>", string(body))
 }
 
+func TestHTMLTemplateFormatterFormatBodyPanicsOnBadTemplate(t *testing.T) {
+
+	template, err := template.New("test").Parse(
+		`<doctype html><html><head><title>Test</title></head><body>{{.Wrong}}</body></html>`,
+	)
+
+	assert.NoError(t, err, "failed to parse template")
+
+	type htmlData struct {
+		Key string
+	}
+
+	responseData := ResponseData{
+		Body: htmlData{
+			Key: "value",
+		},
+	}
+
+	f := HTMLTemplateFormatter{
+		Template: template,
+	}
+
+	bodyReader := f.FormatBody(responseData)
+	_, err = io.ReadAll(bodyReader)
+
+	assert.Error(t, err)
+
+}
+
 func TestHTMLTemplateFormatterFormatStream(t *testing.T) {
 
 	body := []byte("<doctype html><html><head><title>Test</title></head><body>value</body></html>")

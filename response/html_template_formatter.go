@@ -1,6 +1,7 @@
 package response
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -19,7 +20,10 @@ func (f HTMLTemplateFormatter) FormatBody(responseData ResponseData) io.Reader {
 	go func() {
 		defer pipeWriter.Close()
 
-		f.Template.Execute(pipeWriter, responseData.Body)
+		err := f.Template.Execute(pipeWriter, responseData.Body)
+		if err != nil {
+			pipeWriter.CloseWithError(fmt.Errorf("failed to execute template: %w", err))
+		}
 	}()
 
 	return pipeReader
