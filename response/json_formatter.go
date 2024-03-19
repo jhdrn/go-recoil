@@ -13,19 +13,22 @@ type JSONFormatter struct{}
 
 // FormatBody formats the response body as JSON. If the response body is nil,
 // it will be set to a map with a single key "message" and the value of
-// http.StatusText(responseData.Status).
+// http.StatusText(responseData.Status). If the response body is an error,
+// the response body will be set to a map with a single key "message" and the
+// value of the error message. If the response body is an io.Reader, it will be
+// returned as is. Otherwise, the response body will be marshaled to JSON.
 func (f JSONFormatter) FormatBody(responseData ResponseData) io.Reader {
 
 	if responseData.Body == nil {
 		responseData.Body = map[string]string{
 			"message": http.StatusText(responseData.Status),
 		}
-	} else if msg, ok := responseData.Body.(string); ok {
-		responseData.Body = map[string]string{
-			"message": msg,
-		}
 	} else if reader, ok := responseData.Body.(io.Reader); ok {
 		return reader
+	} else if err, ok := responseData.Body.(error); ok {
+		responseData.Body = map[string]string{
+			"message": err.Error(),
+		}
 	}
 
 	jsonBytes, err := json.Marshal(responseData.Body)

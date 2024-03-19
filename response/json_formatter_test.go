@@ -2,6 +2,7 @@ package response
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -63,10 +64,12 @@ func TestJSONFormatterFormatBodyNilContent(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf(`{"message":"%v"}`, http.StatusText(responseData.Status)), string(body))
 }
 
-func TestJSONFormatterFormatBodyStringContent(t *testing.T) {
+func TestJSONFormatterFormatBodyErrorContent(t *testing.T) {
+
+	err := errors.New("some error")
 
 	responseData := ResponseData{
-		Body:   "message",
+		Body:   err,
 		Status: http.StatusBadRequest,
 	}
 
@@ -77,7 +80,7 @@ func TestJSONFormatterFormatBodyStringContent(t *testing.T) {
 	body, err := io.ReadAll(bodyReader)
 
 	assert.NoError(t, err, "failed to read body reader")
-	assert.Equal(t, `{"message":"message"}`, string(body))
+	assert.Equal(t, `{"message":"some error"}`, string(body))
 }
 
 func TestJSONFormatterFormatBodyBadContent(t *testing.T) {

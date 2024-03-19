@@ -67,6 +67,23 @@ func TestXMLFormatterFormatBodyNilContent(t *testing.T) {
 	assert.Equal(t, fmt.Sprintf("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>%v</message>", http.StatusText(responseData.Status)), string(body))
 }
 
+func TestXMLFormatterFormatBodyErrorContent(t *testing.T) {
+
+	responseData := ResponseData{
+		Body:   fmt.Errorf("error message"),
+		Status: http.StatusBadRequest,
+	}
+
+	f := XMLFormatter{}
+
+	bodyReader := f.FormatBody(responseData)
+
+	body, err := io.ReadAll(bodyReader)
+
+	assert.NoError(t, err, "failed to read body reader")
+	assert.Equal(t, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<message>error message</message>", string(body))
+}
+
 func TestXMLFormatterFormatBodyBadContent(t *testing.T) {
 
 	responseData := ResponseData{
