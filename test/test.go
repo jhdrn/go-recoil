@@ -7,10 +7,11 @@ import (
 	"github.com/jhdrn/go-recoil/response"
 )
 
-var xmlResponseBuilder = response.NewResponseBuilder(response.Config{
-	Formatter: response.XMLFormatter{},
-},
-)
+var xmlResponseBuilder = response.NewBuilder(response.WithConfig(
+	response.Config{
+		Formatter: response.XMLFormatter{},
+	},
+))
 
 func main() {
 
@@ -22,10 +23,10 @@ func main() {
 	// 	return response.NotImplemented()
 	// })
 
-	response.DefaultResponseBuilder.Config.Formatter = response.JSONFormatter{}
+	response.DefaultConfig.Formatter = response.JSONFormatter{}
 
 	http.HandleFunc("/", recoil.HandlerFunc(func(r *http.Request) recoil.Response {
-		return xmlResponseBuilder.Content("foo").WithStatus(http.StatusAccepted)
+		return xmlResponseBuilder.WithContent("foo").WithStatus(http.StatusAccepted)
 	}))
 
 	http.Handle("/", recoil.Handler(func(r *http.Request) recoil.Response {

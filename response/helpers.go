@@ -1,95 +1,86 @@
 package response
 
-// Content creates a new response with the supplied content using the default
-// response builder.
-func Content(content any) response {
-	return DefaultResponseBuilder.Content(content)
+// Content creates a new *Builder with the supplied content using DefaultConfig.
+func Content(content any) *Builder {
+	return NewBuilder().WithContent(content)
 }
 
-// Status creates a new response with the supplied status using the default
-// response builder.
-func Status(status int) response {
-	return DefaultResponseBuilder.Status(status)
+// Status creates a new *Builder with the supplied status using DefaultConfig.
+func Status(status int) *Builder {
+	return NewBuilder().WithStatus(status)
 }
 
-// BadGateway returns a 502 Bad Gateway response using the default response builder.
-func BadGateway() response {
-	return DefaultResponseBuilder.BadGateway()
+// BadGateway returns a 502 Bad Gateway *Builder using DefaultConfig.
+func BadGateway() *Builder {
+	return NewBuilder().BadGateway()
 }
 
-// BadRequest returns a 400 Bad Request response using the default response builder.
-func BadRequest() response {
-	return DefaultResponseBuilder.BadRequest()
+// BadRequest returns a 400 Bad Request *Builder using DefaultConfig.
+func BadRequest() *Builder {
+	return NewBuilder().BadRequest()
 }
 
-// Conflict returns a 409 Conflict response using the default response builder.
-func Conflict() response {
-	return DefaultResponseBuilder.Conflict()
+// Conflict returns a 409 Conflict *Builder using DefaultConfig.
+func Conflict() *Builder {
+	return NewBuilder().Conflict()
 }
 
-// Created returns a 201 Created response using the default response builder.
-func Created() response {
-	return DefaultResponseBuilder.Created()
+// Created returns a 201 Created *Builder using DefaultConfig.
+func Created() *Builder {
+	return NewBuilder().Created()
 }
 
-// Forbidden returns a 403 Forbidden response using the default response builder.
-func Forbidden() response {
-	return DefaultResponseBuilder.Forbidden()
+// Forbidden returns a 403 Forbidden *Builder using DefaultConfig.
+func Forbidden() *Builder {
+	return NewBuilder().Forbidden()
 }
 
-// Found returns a 302 Found response using the default response builder.
-func Found(location string) response {
-	return DefaultResponseBuilder.Found(location)
+// Found returns a 302 Found *Builder using DefaultConfig.
+func Found(location string) *Builder {
+	return NewBuilder().Found(location)
 }
 
-// GatewayTimeout returns a 504 Gateway Timeout response using the default
-// response builder.
-func GatewayTimeout() response {
-	return DefaultResponseBuilder.GatewayTimeout()
+// GatewayTimeout returns a 504 Gateway Timeout *Builder using DefaultConfig.
+func GatewayTimeout() *Builder {
+	return NewBuilder().GatewayTimeout()
 }
 
-// InternalServerError returns a 500 Internal Server Error response using the
-// default response builder.
-func InternalServerError() response {
-	return DefaultResponseBuilder.InternalServerError()
+// InternalServerError returns a 500 Internal Server Error *Builder using DefaultConfig.
+func InternalServerError() *Builder {
+	return NewBuilder().InternalServerError()
 }
 
-// OK returns a 200 OK response using the default response builder.
-func OK() response {
-	return DefaultResponseBuilder.OK()
+// OK returns a 200 OK *Builder using DefaultConfig.
+func OK() *Builder {
+	return NewBuilder().OK()
 }
 
-// MovedPermanently returns a 301 Moved Permanently response using the default
-// response builder.
-func MovedPermanently(location string) response {
-	return DefaultResponseBuilder.MovedPermanently(location)
+// MovedPermanently returns a 301 Moved Permanently *Builder using DefaultConfig.
+func MovedPermanently(location string) *Builder {
+	return NewBuilder().MovedPermanently(location)
 }
 
-// NotFound returns a 404 Not Found response using the default response builder.
-func NotFound() response {
-	return DefaultResponseBuilder.NotFound()
+// NotFound returns a 404 Not Found *Builder using DefaultConfig.
+func NotFound() *Builder {
+	return NewBuilder().NotFound()
 }
 
-// NotImplemented returns a 501 Not Implemented response using the default
-// response builder.
-func NotImplemented() response {
-	return DefaultResponseBuilder.NotImplemented()
+// NotImplemented returns a 501 Not Implemented *Builder using DefaultConfig.
+func NotImplemented() *Builder {
+	return NewBuilder().NotImplemented()
 }
 
-// PermanentRedirect returns a 308 Permanent Redirect response using the default
-// response builder.
-func PermanentRedirect(location string) response {
-	return DefaultResponseBuilder.PermanentRedirect(location)
+// PermanentRedirect returns a 308 Permanent Redirect *Builder using DefaultConfig.
+func PermanentRedirect(location string) *Builder {
+	return NewBuilder().PermanentRedirect(location)
 }
 
-// TemporaryRedirect returns a 307 Temporary Redirect response using the default
-// response builder.
-func TemporaryRedirect(location string) response {
-	return DefaultResponseBuilder.TemporaryRedirect(location)
+// TemporaryRedirect returns a 307 Temporary Redirect *Builder using DefaultConfig.
+func TemporaryRedirect(location string) *Builder {
+	return NewBuilder().TemporaryRedirect(location)
 }
 
-// Unauthorized returns a 401 Unauthorized response using the default response
-// builder.
-func Unauthorized() response {
-	return DefaultResponseBuilder.Unauthorized()
+// Unauthorized returns a 401 Unauthorized *Builder using DefaultConfig.
+func Unauthorized() *Builder {
+	return NewBuilder().Unauthorized()
 }

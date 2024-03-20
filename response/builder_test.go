@@ -8,9 +8,11 @@ import (
 )
 
 func TestResponseBuilderWithCookie(t *testing.T) {
-	r := NewResponseBuilder(Config{
-		Formatter: JSONFormatter{},
-	})
+	r := NewBuilder(WithConfig(
+		Config{
+			Formatter: JSONFormatter{},
+		},
+	))
 
 	c := http.Cookie{
 		Name:  "foo",
@@ -21,9 +23,11 @@ func TestResponseBuilderWithCookie(t *testing.T) {
 }
 
 func TestResponseBuilderWithHeader(t *testing.T) {
-	r := NewResponseBuilder(Config{
-		Formatter: NoOpFormatter{},
-	})
+	r := NewBuilder(WithConfig(
+		Config{
+			Formatter: NoOpFormatter{},
+		},
+	))
 
 	h := http.Header{
 		"foo": []string{"bar"},
@@ -44,9 +48,11 @@ func TestResponseBuilderWithHeader(t *testing.T) {
 }
 
 func TestResponseBuilderWithHeaderEntrySingleValue(t *testing.T) {
-	r := NewResponseBuilder(Config{
-		Formatter: NoOpFormatter{},
-	})
+	r := NewBuilder(WithConfig(
+		Config{
+			Formatter: NoOpFormatter{},
+		},
+	))
 
 	h := http.Header{
 		"foo": []string{"bar"},
