@@ -14,7 +14,7 @@ import (
 func TestJSONFormatterFormatBody(t *testing.T) {
 
 	responseData := ResponseData{
-		Body: map[string]any{
+		Content: map[string]any{
 			"key": "value",
 		},
 	}
@@ -34,7 +34,7 @@ func TestJSONFormatterFormatStream(t *testing.T) {
 	body := []byte("body")
 
 	responseData := ResponseData{
-		Body: bytes.NewReader(body),
+		Content: bytes.NewReader(body),
 	}
 
 	f := JSONFormatter{}
@@ -50,8 +50,8 @@ func TestJSONFormatterFormatStream(t *testing.T) {
 func TestJSONFormatterFormatBodyNilContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Body:   nil,
-		Status: http.StatusBadRequest,
+		Content: nil,
+		Status:  http.StatusBadRequest,
 	}
 
 	f := JSONFormatter{}
@@ -69,8 +69,8 @@ func TestJSONFormatterFormatBodyErrorContent(t *testing.T) {
 	err := errors.New("some error")
 
 	responseData := ResponseData{
-		Body:   err,
-		Status: http.StatusBadRequest,
+		Content: err,
+		Status:  http.StatusBadRequest,
 	}
 
 	f := JSONFormatter{}
@@ -86,7 +86,7 @@ func TestJSONFormatterFormatBodyErrorContent(t *testing.T) {
 func TestJSONFormatterFormatBodyBadContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Body: func() {},
+		Content: func() {},
 	}
 
 	f := JSONFormatter{}
@@ -101,7 +101,7 @@ func TestJSONFormatterFormatBodyBadContent(t *testing.T) {
 func TestJSONFormatterFormatHeader(t *testing.T) {
 
 	responseData := ResponseData{
-		Body: map[string]any{
+		Content: map[string]any{
 			"key": "value",
 		},
 		Header: http.Header{},

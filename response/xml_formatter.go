@@ -19,17 +19,17 @@ type XMLFormatter struct{}
 // is. Otherwise, the response body will be marshaled to XML.
 func (f XMLFormatter) FormatBody(responseData ResponseData) io.Reader {
 
-	if responseData.Body == nil {
-		responseData.Body = struct {
+	if responseData.Content == nil {
+		responseData.Content = struct {
 			XMLName xml.Name `xml:"message"`
 			Message string   `xml:",chardata"`
 		}{
 			Message: http.StatusText(responseData.Status),
 		}
-	} else if reader, ok := responseData.Body.(io.Reader); ok {
+	} else if reader, ok := responseData.Content.(io.Reader); ok {
 		return reader
-	} else if err, ok := responseData.Body.(error); ok {
-		responseData.Body = struct {
+	} else if err, ok := responseData.Content.(error); ok {
+		responseData.Content = struct {
 			XMLName xml.Name `xml:"message"`
 			Message string   `xml:",chardata"`
 		}{
@@ -37,7 +37,7 @@ func (f XMLFormatter) FormatBody(responseData ResponseData) io.Reader {
 		}
 	}
 
-	xmlBytes, err := xml.Marshal(responseData.Body)
+	xmlBytes, err := xml.Marshal(responseData.Content)
 	if err != nil {
 		panic(fmt.Errorf("failed to marshal XML data: %w", err))
 	}

@@ -19,19 +19,19 @@ type JSONFormatter struct{}
 // returned as is. Otherwise, the response body will be marshaled to JSON.
 func (f JSONFormatter) FormatBody(responseData ResponseData) io.Reader {
 
-	if responseData.Body == nil {
-		responseData.Body = map[string]string{
+	if responseData.Content == nil {
+		responseData.Content = map[string]string{
 			"message": http.StatusText(responseData.Status),
 		}
-	} else if reader, ok := responseData.Body.(io.Reader); ok {
+	} else if reader, ok := responseData.Content.(io.Reader); ok {
 		return reader
-	} else if err, ok := responseData.Body.(error); ok {
-		responseData.Body = map[string]string{
+	} else if err, ok := responseData.Content.(error); ok {
+		responseData.Content = map[string]string{
 			"message": err.Error(),
 		}
 	}
 
-	jsonBytes, err := json.Marshal(responseData.Body)
+	jsonBytes, err := json.Marshal(responseData.Content)
 	if err != nil {
 		panic(fmt.Errorf("failed to marshal JSON data: %w", err))
 	}

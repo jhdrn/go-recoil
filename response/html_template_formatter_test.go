@@ -23,7 +23,7 @@ func TestHTMLTemplateFormatterFormatBody(t *testing.T) {
 	}
 
 	responseData := ResponseData{
-		Body: htmlData{
+		Content: htmlData{
 			Key: "value",
 		},
 	}
@@ -53,7 +53,7 @@ func TestHTMLTemplateFormatterFormatBodyPanicsOnBadTemplate(t *testing.T) {
 	}
 
 	responseData := ResponseData{
-		Body: htmlData{
+		Content: htmlData{
 			Key: "value",
 		},
 	}
@@ -80,7 +80,7 @@ func TestHTMLTemplateFormatterFormatStream(t *testing.T) {
 	assert.NoError(t, err, "failed to parse template")
 
 	responseData := ResponseData{
-		Body: bytes.NewReader(body),
+		Content: bytes.NewReader(body),
 	}
 
 	f := HTMLTemplateFormatter{
@@ -98,8 +98,8 @@ func TestHTMLTemplateFormatterFormatStream(t *testing.T) {
 func TestHTMLTemplateFormatterFormatHeader(t *testing.T) {
 
 	responseData := ResponseData{
-		Body:   struct{}{},
-		Header: http.Header{},
+		Content: struct{}{},
+		Header:  http.Header{},
 	}
 
 	responseData.Header.Set("key", "value")
@@ -129,7 +129,7 @@ func TestHTMLTemplateFormatterFormatStatus(t *testing.T) {
 func TestHTMLTemplateFormatterFormatStatusZeroValue(t *testing.T) {
 
 	responseData := ResponseData{
-		Body: map[string]any{},
+		Content: map[string]any{},
 	}
 
 	f := HTMLTemplateFormatter{}

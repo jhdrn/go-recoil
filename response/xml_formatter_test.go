@@ -17,7 +17,7 @@ func TestXMLFormatterFormatBody(t *testing.T) {
 	}
 
 	responseData := ResponseData{
-		Body: xmlTest{
+		Content: xmlTest{
 			Key: "value",
 		},
 	}
@@ -37,7 +37,7 @@ func TestXMLFormatterFormatStream(t *testing.T) {
 	body := []byte("body")
 
 	responseData := ResponseData{
-		Body: bytes.NewReader(body),
+		Content: bytes.NewReader(body),
 	}
 
 	f := XMLFormatter{}
@@ -53,8 +53,8 @@ func TestXMLFormatterFormatStream(t *testing.T) {
 func TestXMLFormatterFormatBodyNilContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Body:   nil,
-		Status: http.StatusBadRequest,
+		Content: nil,
+		Status:  http.StatusBadRequest,
 	}
 
 	f := XMLFormatter{}
@@ -70,8 +70,8 @@ func TestXMLFormatterFormatBodyNilContent(t *testing.T) {
 func TestXMLFormatterFormatBodyErrorContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Body:   fmt.Errorf("error message"),
-		Status: http.StatusBadRequest,
+		Content: fmt.Errorf("error message"),
+		Status:  http.StatusBadRequest,
 	}
 
 	f := XMLFormatter{}
@@ -87,7 +87,7 @@ func TestXMLFormatterFormatBodyErrorContent(t *testing.T) {
 func TestXMLFormatterFormatBodyBadContent(t *testing.T) {
 
 	responseData := ResponseData{
-		Body: func() {},
+		Content: func() {},
 	}
 
 	f := XMLFormatter{}
@@ -102,8 +102,8 @@ func TestXMLFormatterFormatBodyBadContent(t *testing.T) {
 func TestXMLFormatterFormatHeader(t *testing.T) {
 
 	responseData := ResponseData{
-		Body:   nil,
-		Header: http.Header{},
+		Content: nil,
+		Header:  http.Header{},
 	}
 
 	responseData.Header.Set("key", "value")

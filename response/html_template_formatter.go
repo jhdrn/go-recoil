@@ -20,7 +20,7 @@ func (f HTMLTemplateFormatter) FormatBody(responseData ResponseData) io.Reader {
 	go func() {
 		defer pipeWriter.Close()
 
-		err := f.Template.Execute(pipeWriter, responseData.Body)
+		err := f.Template.Execute(pipeWriter, responseData.Content)
 		if err != nil {
 			pipeWriter.CloseWithError(fmt.Errorf("failed to execute template: %w", err))
 		}

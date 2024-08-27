@@ -13,10 +13,10 @@ type NoOpFormatter struct{}
 
 // FormatBody returns the body of the response data as a string.
 func (f NoOpFormatter) FormatBody(responseData ResponseData) io.Reader {
-	if reader, ok := responseData.Body.(io.Reader); ok {
+	if reader, ok := responseData.Content.(io.Reader); ok {
 		return reader
 	}
-	return bytes.NewReader([]byte(fmt.Sprintf("%v", responseData.Body)))
+	return bytes.NewReader([]byte(fmt.Sprintf("%v", responseData.Content)))
 }
 
 // FormatHeader returns the header of the response data.

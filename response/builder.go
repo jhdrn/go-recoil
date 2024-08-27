@@ -14,8 +14,11 @@ var DefaultConfig = Config{
 
 // ResponseData contains the data to be used to format a response.
 type ResponseData struct {
-	Body   any
+	// Content is the content to be written to the response body.
+	Content any
+	// Header is the header map to be written to the response.
 	Header http.Header
+	// Status is the HTTP status code to be written to the response.
 	Status int
 }
 
@@ -76,6 +79,10 @@ func (r Builder) Body() io.Reader {
 	return r.config.Formatter.FormatBody(r.responseData)
 }
 
+func (r Builder) Content() any {
+	return r.responseData.Content
+}
+
 // Header returns the header map.
 func (r Builder) Header() http.Header {
 	return r.config.Formatter.FormatHeader(r.responseData)
@@ -91,13 +98,13 @@ func (r Builder) Status() int {
 // If the content argument implements the ResponseError interface,
 // the status will be set to the status of the ResponseError.
 func (r Builder) WithContent(content any) Builder {
-	r.responseData.Body = content
+	r.responseData.Content = content
 	return r
 }
 
 // WithStream returns a copy of the response with the given stream.
 func (r Builder) WithStream(stream io.Reader) Builder {
-	r.responseData.Body = stream
+	r.responseData.Content = stream
 	return r
 }
 
