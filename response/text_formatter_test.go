@@ -21,7 +21,6 @@ func TestTextFormatterFormatBody(t *testing.T) {
 		{"string content", "hello world", 0, "hello world"},
 		{"byte slice content", []byte("byte content"), 0, "byte content"},
 		{"io.Reader content", bytes.NewReader([]byte("reader content")), 0, "reader content"},
-		{"error content", io.ErrUnexpectedEOF, 0, `{"message":"unexpected EOF"}`},
 	}
 
 	for _, tt := range tests {

@@ -19,8 +19,6 @@ func (f TextFormatter) FormatBody(responseData ResponseData) io.Reader {
 	switch v := responseData.Content.(type) {
 	case io.Reader:
 		return v
-	case error:
-		return bytes.NewReader([]byte(fmt.Sprintf(`{"message":"%s"}`, v.Error())))
 	case []byte:
 		return bytes.NewReader(v)
 	case string:
