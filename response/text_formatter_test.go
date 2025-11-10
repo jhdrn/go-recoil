@@ -2,74 +2,66 @@ package response
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"net/http"
+	"strings"
 	"testing"
 )
 
-func TestTextFormatterFormatBody(t *testing.T) {
-	tests := []struct {
-		name        string
-		content     any
-		wantContent string
-		shouldPanic bool
-	}{
-		{
-			name:        "io.Reader content is returned directly",
-			content:     bytes.NewReader([]byte("hello")),
-			wantContent: "hello",
-		},
-		{
-			name:        "error content is converted to string",
-			content:     errors.New("something went wrong"),
-			wantContent: "something went wrong",
-		},
-		{
-			name:        "[]byte content is returned correctly",
-			content:     []byte("byte data"),
-			wantContent: "byte data",
-		},
-		{
-			name:        "string content is returned correctly",
-			content:     "plain text",
-			wantContent: "plain text",
-		},
-		{
-			name:        "unsupported content type panics",
-			content:     12345,
-			shouldPanic: true,
-		},
-	}
+func TestTextFormatter(t *testing.T) {
+	formatter := TextFormatter{}
 
-	f := TextFormatter{}
+	tests := []struct {
+		name     string
+		content  interface{}
+		status   int
+		expected string
+	}{
+		{"nil content", nil, http.StatusNotFound, "message:Not Found"},
+		{"string content", "hello world", 0, "hello world"},
+		{"byte slice content", []byte("byte content"), 0, "byte content"},
+		{"io.Reader content", bytes.NewReader([]byte("reader content")), 0, "reader content"},
+		{"error content", io.ErrUnexpectedEOF, 0, `{"message":"unexpected EOF"}`},
+		{"map content", map[string]string{"foo": "bar"}, 0, "foo:bar"},
+	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := ResponseData{Content: tt.content}
-
-			if tt.shouldPanic {
-				defer func() {
-					if r := recover(); r == nil {
-						t.Errorf("expected panic but did not occur")
-					}
-				}()
-				f.FormatBody(r)
-				return
+			respData := ResponseData{
+				Content: tt.content,
+				Status:  tt.status,
+				Header:  nil,
 			}
 
-			reader := f.FormatBody(r)
-			got, err := io.ReadAll(reader)
+			// Body
+			reader := formatter.FormatBody(respData)
+			b, err := io.ReadAll(reader)
 			if err != nil {
-				t.Fatalf("failed to read result: %v", err)
+				t.Fatalf("Failed to read body: %v", err)
 			}
-			if string(got) != tt.wantContent {
-				t.Errorf("got %q, want %q", string(got), tt.wantContent)
+			got := string(b)
+			if !strings.Contains(got, tt.expected) {
+				t.Errorf("expected %q to contain %q", got, tt.expected)
+			}
+
+			// Header
+			header := formatter.FormatHeader(respData)
+			if header.Get("Content-Type") != "text/plain; charset=utf-8" {
+				t.Errorf("expected Content-Type header to be set, got %v", header.Get("Content-Type"))
+			}
+
+			// Status
+			status := formatter.FormatStatus(respData)
+			expectedStatus := tt.status
+			if expectedStatus == 0 {
+				expectedStatus = http.StatusOK
+			}
+			if status != expectedStatus {
+				t.Errorf("expected status %d, got %d", expectedStatus, status)
 			}
 		})
 	}
 }
-
 func TestTextFormatterFormatHeader(t *testing.T) {
 	f := TextFormatter{}
 	r := ResponseData{Header: http.Header{}}

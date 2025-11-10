@@ -9,33 +9,45 @@ import (
 
 type TextFormatter struct{}
 
+// FormatBody converts different types of Content into an io.Reader.
+// Supported types: nil, error, io.Reader, string, []byte, map[string]string.
 func (f TextFormatter) FormatBody(responseData ResponseData) io.Reader {
-
-	if reader, ok := responseData.Content.(io.Reader); ok {
-		return reader
-	} else if err, ok := responseData.Content.(error); ok {
-		responseData.Content = err.Error()
-	}
-	if b, ok := responseData.Content.([]byte); ok {
-		return bytes.NewReader(b)
+	if responseData.Content == nil {
+		responseData.Content = map[string]string{
+			"message": http.StatusText(responseData.Status),
+		}
 	}
 
-	if str, ok := responseData.Content.(string); ok {
-		return bytes.NewReader([]byte(str))
+	switch v := responseData.Content.(type) {
+	case io.Reader:
+		return v
+	case error:
+		return bytes.NewReader([]byte(fmt.Sprintf(`{"message":"%s"}`, v.Error())))
+	case []byte:
+		return bytes.NewReader(v)
+	case string:
+		return bytes.NewReader([]byte(v))
+	case map[string]string:
+		var buf bytes.Buffer
+		for k, val := range v {
+			buf.WriteString(fmt.Sprintf("%s:%s\n", k, val))
+		}
+		return &buf
+	default:
+		panic(fmt.Sprintf("unable to format response body of type %T", responseData.Content))
 	}
-
-	panic(fmt.Sprintf("unable to format response body of type %T", responseData.Content))
 }
 
-// FormatHeader formats the response header by setting the Content-Type to
-// "application/json".
+// FormatHeader sets default headers. If none exist, it creates a new Header map.
 func (f TextFormatter) FormatHeader(responseData ResponseData) http.Header {
+	if responseData.Header == nil {
+		responseData.Header = http.Header{}
+	}
 	responseData.Header.Set("Content-Type", "text/plain; charset=utf-8")
 	return responseData.Header
 }
 
-// FormatStatus formats the response status. If the status is 0, it will be
-// set to http.StatusOK.
+// FormatStatus returns the status code, defaulting to http.StatusOK if zero.
 func (f TextFormatter) FormatStatus(responseData ResponseData) int {
 	if responseData.Status == 0 {
 		return http.StatusOK
