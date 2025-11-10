@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestTextFormatter(t *testing.T) {
+func TestTextFormatterFormatBody(t *testing.T) {
 	formatter := TextFormatter{}
 
 	tests := []struct {
@@ -17,12 +17,11 @@ func TestTextFormatter(t *testing.T) {
 		status   int
 		expected string
 	}{
-		{"nil content", nil, http.StatusNotFound, "message:Not Found"},
+		{"nil content", nil, http.StatusNotFound, "Not Found"},
 		{"string content", "hello world", 0, "hello world"},
 		{"byte slice content", []byte("byte content"), 0, "byte content"},
 		{"io.Reader content", bytes.NewReader([]byte("reader content")), 0, "reader content"},
 		{"error content", io.ErrUnexpectedEOF, 0, `{"message":"unexpected EOF"}`},
-		{"map content", map[string]string{"foo": "bar"}, 0, "foo:bar"},
 	}
 
 	for _, tt := range tests {
@@ -33,7 +32,6 @@ func TestTextFormatter(t *testing.T) {
 				Header:  nil,
 			}
 
-			// Body
 			reader := formatter.FormatBody(respData)
 			b, err := io.ReadAll(reader)
 			if err != nil {
@@ -43,25 +41,26 @@ func TestTextFormatter(t *testing.T) {
 			if !strings.Contains(got, tt.expected) {
 				t.Errorf("expected %q to contain %q", got, tt.expected)
 			}
-
-			// Header
-			header := formatter.FormatHeader(respData)
-			if header.Get("Content-Type") != "text/plain; charset=utf-8" {
-				t.Errorf("expected Content-Type header to be set, got %v", header.Get("Content-Type"))
-			}
-
-			// Status
-			status := formatter.FormatStatus(respData)
-			expectedStatus := tt.status
-			if expectedStatus == 0 {
-				expectedStatus = http.StatusOK
-			}
-			if status != expectedStatus {
-				t.Errorf("expected status %d, got %d", expectedStatus, status)
-			}
 		})
 	}
 }
+
+func TestTextFormatterFormatBodyPanic(t *testing.T) {
+	formatter := TextFormatter{}
+	respData := ResponseData{
+		Content: 12345,
+		Status:  0,
+	}
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("expected panic for unsupported type, but did not panic")
+		}
+	}()
+
+	formatter.FormatBody(respData)
+}
+
 func TestTextFormatterFormatHeader(t *testing.T) {
 	f := TextFormatter{}
 	r := ResponseData{Header: http.Header{}}

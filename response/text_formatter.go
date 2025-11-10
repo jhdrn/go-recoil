@@ -13,9 +13,7 @@ type TextFormatter struct{}
 // Supported types: nil, error, io.Reader, string, []byte, map[string]string.
 func (f TextFormatter) FormatBody(responseData ResponseData) io.Reader {
 	if responseData.Content == nil {
-		responseData.Content = map[string]string{
-			"message": http.StatusText(responseData.Status),
-		}
+		responseData.Content = http.StatusText(responseData.Status)
 	}
 
 	switch v := responseData.Content.(type) {
@@ -27,12 +25,6 @@ func (f TextFormatter) FormatBody(responseData ResponseData) io.Reader {
 		return bytes.NewReader(v)
 	case string:
 		return bytes.NewReader([]byte(v))
-	case map[string]string:
-		var buf bytes.Buffer
-		for k, val := range v {
-			buf.WriteString(fmt.Sprintf("%s:%s\n", k, val))
-		}
-		return &buf
 	default:
 		panic(fmt.Sprintf("unable to format response body of type %T", responseData.Content))
 	}
