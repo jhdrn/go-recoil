@@ -83,9 +83,22 @@ func (r Builder) Content() any {
 	return r.responseData.Content
 }
 
-// Header returns the header map.
+// Header returns the header map. The formatter receives a copy of the
+// builder's header, so the returned map can be modified freely without
+// affecting the builder.
 func (r Builder) Header() http.Header {
-	return r.config.Formatter.FormatHeader(r.responseData)
+	data := r.responseData
+	data.Header = cloneHeader(data.Header)
+	return r.config.Formatter.FormatHeader(data)
+}
+
+// cloneHeader returns a deep copy of h. Unlike http.Header.Clone it never
+// returns nil, so the result is always safe to write to.
+func cloneHeader(h http.Header) http.Header {
+	if h == nil {
+		return make(http.Header)
+	}
+	return h.Clone()
 }
 
 // Status returns the HTTP status code. If no status code has been set,
@@ -109,17 +122,20 @@ func (r Builder) WithStream(stream io.Reader) Builder {
 }
 
 // WithHeader returns a copy of the response with the given header. It will
-// replace the existing header.
+// replace the existing header. The given header is copied, so later changes
+// to it do not affect the response.
 func (r Builder) WithHeader(header http.Header) Builder {
-	r.responseData.Header = header
+	r.responseData.Header = cloneHeader(header)
 	return r
 }
 
 // WithHeaderEntry returns a copy of the response with the given header entry.
 // If a header entry with the same key already exists, the existing values will
-// be replaced.
+// be replaced. The receiver is left unchanged.
 func (r Builder) WithHeaderEntry(key string, value ...string) Builder {
-	r.responseData.Header[key] = value
+	h := cloneHeader(r.responseData.Header)
+	h[key] = append([]string(nil), value...)
+	r.responseData.Header = h
 	return r
 }
 
@@ -129,11 +145,13 @@ func (r Builder) WithStatus(status int) Builder {
 	return r
 }
 
-// WithCookie returns a copy of the response with the given cookie set
-// to the response header.
+// WithCookie returns a copy of the response with the given cookie added
+// to the response header. Calling it multiple times adds multiple cookies.
 func (r Builder) WithCookie(cookie *http.Cookie) Builder {
 	if v := cookie.String(); v != "" {
-		r.WithHeaderEntry("Set-Cookie", v)
+		h := cloneHeader(r.responseData.Header)
+		h.Add("Set-Cookie", v)
+		r.responseData.Header = h
 	}
 	return r
 }
